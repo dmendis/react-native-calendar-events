@@ -45,7 +45,8 @@ RCT_EXPORT_METHOD(requestAccess:(RCTResponseSenderBlock)callback) {
 
 #pragma mark - Get Events
 
-RCT_REMAP_METHOD(getEventsForMonth:(NSInteger)month,
+RCT_REMAP_METHOD(getEvents,
+                 month:(NSInteger)month
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -75,8 +76,16 @@ RCT_REMAP_METHOD(getEventsForMonth:(NSInteger)month,
     // Fetch all events that match the predicate
     NSArray *events = [store eventsMatchingPredicate:predicate];
     
-    NSLog(@"Events: %@", events.description);
-    resolve(events);
+    NSMutableArray *convertedEvents = [NSMutableArray arrayWithCapacity:events.count];
+    for (EKEvent *event in events) {
+        [convertedEvents addObject:@{
+             @"title": event.title,
+             @"startDate": [NSNumber numberWithDouble:[event.startDate timeIntervalSince1970]],
+             @"endDate": [NSNumber numberWithDouble:[event.endDate timeIntervalSince1970]]
+         }];
+    }
+    
+    resolve(convertedEvents);
 }
 
 @end
