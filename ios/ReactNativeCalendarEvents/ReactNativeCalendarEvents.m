@@ -33,7 +33,13 @@ RCT_EXPORT_METHOD(initEventsDatabase) {
 RCT_EXPORT_METHOD(requestAccess:(RCTResponseSenderBlock)callback) {
     [[ReactNativeCalendarEvents eventsStore] requestAccessToEntityType:EKEntityTypeEvent completion:^(BOOL granted, NSError *error) {
         NSLog(@"ReactNativeCalendarEvents: Permissions status: %@", granted ? @"Granted" : @"Denied");
-        callback(@[error, [NSNumber numberWithBool:granted]]);
+        NSArray *callbackValues;
+        if (granted && !error) {
+            callbackValues = @[[NSNull null], [NSNumber numberWithBool:granted]];
+        } else {
+            callbackValues = @[error, [NSNumber numberWithBool:granted]];
+        }
+        callback(callbackValues);
     }];
 }
 
